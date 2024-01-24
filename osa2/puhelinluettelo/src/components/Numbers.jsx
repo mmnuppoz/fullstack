@@ -9,8 +9,8 @@ const Numbers =({persons, filter, deletePerson})=>{
     return(
         <ul>
         {filteredPersons.map((person) => (
-            <li key={person.name}>
-            {person.name} {person.number}
+            <li className='note' key={person.name}>
+            {person.name} {person.number} 
                 <button onClick={()=>deletePerson(person.id)} type= "submit" >delete</button>
             </li>
         ))}
