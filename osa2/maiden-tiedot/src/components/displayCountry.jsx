@@ -13,7 +13,11 @@ const DisplayCountry = ({country, countryDelete}) => {
                     </li>
                 ))}
             </ul>
-            <p>{country.flag}</p>
+            <img
+            src={country.flags.png}
+            hight = "200"
+            wigth = "200"
+            />
         </div>
     )
 }
