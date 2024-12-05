@@ -54,3 +54,9 @@ test.only('blogs are returned as json', async () => {
   after(async () => {
     await mongoose.connection.close()
   })
+
+test.only('the indentifier field is named id'), async () => {
+  const response = await api.get('/api/blogs')
+  const blogToCheck = response.body[0]
+  expect(blogToCheck.id).toBeDefined
+}
