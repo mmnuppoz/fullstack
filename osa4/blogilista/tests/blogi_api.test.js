@@ -61,7 +61,7 @@ test('the indentifier field is named id'), async () => {
   expect(blogToCheck.id).toBeDefined
 }
 
-test.only('blog can be added and it is valid'), async () => {
+test('blog can be added and it is valid'), async () => {
 
   const newBlog = {
     title: 'Testi',
@@ -106,4 +106,40 @@ test('set likes value to 0 if not given'), async () => {
 
   expect(blogs).toContainEqual(0)
     
+}
+
+test('blog can not be added without title or url'), async () => {
+
+  const newBlog = {
+    title: '',
+    author: 'Kirjoittaja',
+    url: 'http.blogi.com',
+    likes: 1000
+  }
+
+  const newBlog2 = {
+    title: 'otsikkoOn',
+    author: 'Kirjoittaja',
+    url: '',
+    likes: 100,
+  }
+
+  const newBlog3 = {
+    title: '',
+    author: 'Kirjoittaja',
+    url: '',
+    likes: 10,
+  }
+
+  await api
+    .post('/api/blogs')
+    .send(newBlog)
+    .send(newBlog2)
+    .send(newBlog3)
+    .expect(400)
+    .expect('Content-Type', /application\/json/)
+
+  const blogsAtEnd = await helper.blogsInDb()
+  expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length)
+
 }
