@@ -2,6 +2,7 @@ const blogsRouter = require('express').Router()
 const Blog = require('../models/blog')
 //const User = require('../models/user')
 const jwt = require('jsonwebtoken')
+const { userExtractor } = require('../utils/middleware')
 
 blogsRouter.get('/', async (request, response) => {
   const blogs = await Blog
@@ -42,14 +43,38 @@ blogsRouter.post('/', async (request, response) => {
   response.status(201).json(savedBlog)
 })
 
-blogsRouter.delete('/:id', async (request, response) => {
+blogsRouter.delete('/:id', userExtractor, async (request, response) => {
+
+  if (!request.token) {
+    return response.status(401).json({ error: 'token missing' })
+  }
+
+  const decodedToken = jwt.verify(request.token, process.env.SECRET)
+
+  if (!decodedToken.id) {
+    return response.status(401).json({ error: 'token invalid' })
+  }
   
-  const blog = await Blog.findByIdAndDelete(request.params.id)
+  const user = request.user
+
+  
+  if (!user) {
+    return response.status(404).json({ error: 'user not found' })
+  }
+  
+  const blog = await Blog.findById(request.params.id)
+  
   if (!blog) {
     return response.status(404).json({ error: 'blog not found' })
   }
-  response.status(204).end()
+ 
 
+  if (! blog.user._id.toString() === user.id.toString() ) {
+    return response.status(403).json({ error: 'only the user who added the blog can delete it' })
+  }
+  
+  await Blog.findByIdAndDelete(request.params.id)
+  response.status(204).end()
 })
 
 blogsRouter.put('/:id', async (request, response) => {
