@@ -1,4 +1,4 @@
-/* const { test, after, beforeEach } = require('node:test')
+const { test, after, beforeEach } = require('node:test')
 const assert = require('assert');
 const mongoose = require('mongoose')
 const supertest = require('supertest')
@@ -31,20 +31,20 @@ beforeEach(async () => {
   await blogObject.save()
 })
 
-test('there are two blogs', async () => {
+test.only('there are two blogs', async () => {
   const response = await api.get('/api/blogs')
 
   assert.strictEqual(response.body.length, initialBlogs.length)
 })
 
-test('the first blog is about Blogipostaus1', async () => {
+test.only('the first blog is about Blogipostaus1', async () => {
   const response = await api.get('/api/blogs')
 
   const title = response.body.map(e => e.title)
   assert(title.includes('Blogipostaus1'))
 })
 
-test('blogs are returned as json', async () => {
+test.only('blogs are returned as json', async () => {
     await api
       .get('/api/blogs')
       .expect(200)
@@ -53,4 +53,4 @@ test('blogs are returned as json', async () => {
   
   after(async () => {
     await mongoose.connection.close()
-  }) */
+  })
