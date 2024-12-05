@@ -4,10 +4,12 @@ const mongoose = require('mongoose')
 const supertest = require('supertest')
 const app = require('../app')
 const helper = require('./test_helper')
+const bcrypt = require('bcrypt')
 
 const api = supertest(app)
 
 const Blog = require('../models/blog');
+const User = require('../models/user')
 const { execSync } = require('child_process');
 
 beforeEach(async () => {
