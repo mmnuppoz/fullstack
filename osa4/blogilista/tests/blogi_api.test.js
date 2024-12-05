@@ -3,38 +3,25 @@ const assert = require('assert');
 const mongoose = require('mongoose')
 const supertest = require('supertest')
 const app = require('../app')
+const helper = require('./test_helper')
 
 const api = supertest(app)
 
-const Blog = require('../models/blog')
-
-const initialBlogs = [
-  {
-    title: "Blogipostaus1",
-    author: "Testi1",
-    url: "http.testi.com",
-    likes: 1
-  },
-  {
-    title: "Blogipostaus2",
-    author: "Testi2",
-    url: "http.testi2.com",
-    likes: 2
-  },
-]
+const Blog = require('../models/blog');
+const { execSync } = require('child_process');
 
 beforeEach(async () => {
   await Blog.deleteMany({})
-  let blogObject = new Blog(initialBlogs[0])
+  let blogObject = new Blog(helper.initialBlogs[0])
   await blogObject.save()
-  blogObject = new Blog(initialBlogs[1])
+  blogObject = new Blog(helper.initialBlogs[1])
   await blogObject.save()
 })
 
 test('there are two blogs', async () => {
   const response = await api.get('/api/blogs')
 
-  assert.strictEqual(response.body.length, initialBlogs.length)
+  assert.strictEqual(response.body.length, helper.initialBlogs.length)
 })
 
 test('the first blog is about Blogipostaus1', async () => {
@@ -143,3 +130,72 @@ test('blog can not be added without title or url'), async () => {
   expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length)
 
 }
+
+test('blog post can be deleted', async () =>{
+
+  const newBlog = {
+    title: 'Testi',
+    author: 'Kirjoittaja',
+    url: 'http.blogi.com',
+    likes: 1000
+  }
+
+  const response = await api
+    .post('/api/blogs')
+    .send(newBlog)
+    .expect(201)
+    .expect('Content-Type', /application\/json/)
+
+  const blogToDeleted = response.body
+  console.log('Blog ID to delete:', blogToDeleted.id)
+
+  await api
+    .delete(`/api/blogs/${blogToDeleted.id}`)
+    .expect(204)
+
+  const blogsAtEnd = await helper.blogsInDb()
+  assert.strictEqual(blogsAtEnd.length, helper.initialBlogs.length)
+  
+  const titles = blogsAtEnd.map(r => r.title)
+  assert.strictEqual(titles.includes(blogToDeleted.title), false)
+
+})
+
+test.only('blog post can be edited', async () => {
+
+  const newBlog = {
+    title: 'Testi',
+    author: 'Kirjoittaja',
+    url: 'http.blogi.com',
+    likes: 1000
+  }
+
+  const response = await api
+    .post('/api/blogs')
+    .send(newBlog)
+    .expect(201)
+    .expect('Content-Type', /application\/json/)
+
+  const blogToEdit = response.body
+
+  const editBlog = {
+    title: 'Testi',
+    author: 'Kirjoittaja',
+    url: 'http.blogi.com',
+    likes: 1001
+  }
+
+  const putResponse = await api
+    .put(`/api/blogs/${blogToEdit.id}`)
+    .send(editBlog)
+    .expect(200)
+    .expect('Content-Type', /application\/json/)
+
+  const blogsAtEnd = await helper.blogsInDb()
+
+  assert.strictEqual(blogsAtEnd.length, helper.initialBlogs.length + 1)
+
+  const updatedBlog = blogsAtEnd.find(blog => blog.id === blogToEdit.id)
+  assert.strictEqual(updatedBlog.likes, 1001)
+
+})
