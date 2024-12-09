@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Blog from './components/Blog'
 import blogService from './services/blogs'
 import loginService from './services/login'
@@ -18,6 +18,8 @@ const App = () => {
   const [newUrl, setNewUrl] = useState('');
   const [errorMessage, setErrorMessage] = useState(null)
   const [blogVisible, setBlogVisible] = useState(false)
+  const noteFormRef = useRef()
+  const [updateBlogs, setUpdateBlogs] = useState(false)
 
   useEffect(() => {
     blogService.getAll().then(blogs =>
@@ -36,6 +38,8 @@ const App = () => {
 
   const addBlog = async (blogObject) => {
 
+    noteFormRef.current.toggleVisibility()
+
      try {
       const returnedNote = await blogService.create(blogObject, user.token);
       setBlogs(blogs.concat(returnedNote));
@@ -53,6 +57,24 @@ const App = () => {
       setTimeout(() => {
         setErrorMessage(null)
       }, 5000)
+    }
+  }
+
+  const updateLike = async (blog, id) => {
+    try {
+      await blogService.addLike(blog, id)
+
+      setUpdateBlogs(!updateBlogs)
+      setErrorMessage(['Successfully liked blog', true])
+      setTimeout(() => {
+        setErrorMessage(null)
+      }, 5000)
+    } catch (error) {
+      setErrorMessage(['like not added', false])
+      setTimeout(() => {
+        setErrorMessage(null)
+      }, 5000)
+      console.error('error liking a blog', error)
     }
   }
 
@@ -101,28 +123,32 @@ const App = () => {
 
   const blogForm = () => (
     <div>
-      <Notification message={errorMessage} />
-      <p>{user.name} logged in</p>
-      <button onClick={handleLogOut}>Logout</button>
-      <Togglable buttonLabel = 'new blog'>
+      <Togglable buttonLabel = 'new blog' ref={noteFormRef} >
         <BlogForm
           createBlog={addBlog}
         />
       </Togglable>
-      {user && blogs.filter(blog => blog.user && blog.user.username === user.username).map(blog =>
-        <Blog key={blog.id} blog={blog} />
-      )}
     </div>
   )
-
 
   return (
     <div>
       <h2>blogs</h2>
 
       {!user && loginForm()}
-      {user && blogForm()}
-      
+      {user && <div>
+        <Notification message={errorMessage} />
+        <p>{user.name} logged in</p>
+        <button onClick={handleLogOut}>Logout</button>
+        {blogForm()}
+        {user && blogs
+          .filter(blog => blog.user && blog.user.username === user.username)
+          .sort((a,b) => b.likes - a.likes)
+          .map(blog =>
+          <Blog key={blog.id} blog={blog} updateLike={updateLike} />
+        )}
+        </div>
+      }     
     </div>
   )
 }

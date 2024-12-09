@@ -12,6 +12,14 @@ const setToken = newToken => {
   token = `Bearer ${newToken}`
 }
 
+const addLike = async (newObject, id) => {
+  const config = { headers: { Authorization: token } }
+
+
+  const response = await axios.put(`${baseUrl}/${id}`, newObject, config)
+  return response.data
+}
+
 const create = async newObject => {
   const config = {
     headers: { Authorization: token },
@@ -21,4 +29,4 @@ const create = async newObject => {
   return response.data
 }
 
-export default { getAll, create, setToken }
+export default { getAll, create, setToken, addLike }
