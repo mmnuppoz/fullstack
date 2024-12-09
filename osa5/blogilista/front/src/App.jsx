@@ -10,12 +10,12 @@ import Togglable from './components/Togglable'
 
 const App = () => {
   const [blogs, setBlogs] = useState([])
-  const [username, setUsername] = useState('') 
+  const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [user, setUser] = useState(null)
-  const [newTitle, setNewTitle] = useState('');
-  const [newAuthor, setNewAuthor] = useState('');
-  const [newUrl, setNewUrl] = useState('');
+  const [newTitle, setNewTitle] = useState('')
+  const [newAuthor, setNewAuthor] = useState('')
+  const [newUrl, setNewUrl] = useState('')
   const [errorMessage, setErrorMessage] = useState(null)
   const [blogVisible, setBlogVisible] = useState(false)
   const noteFormRef = useRef()
@@ -24,7 +24,7 @@ const App = () => {
   useEffect(() => {
     blogService.getAll().then(blogs =>
       setBlogs( blogs )
-    )  
+    )
   }, [])
 
   useEffect(() => {
@@ -40,12 +40,12 @@ const App = () => {
 
     noteFormRef.current.toggleVisibility()
 
-     try {
-      const returnedNote = await blogService.create(blogObject, user.token);
-      setBlogs(blogs.concat(returnedNote));
-      setNewTitle('');
-      setNewAuthor('');
-      setNewUrl('');
+    try {
+      const returnedNote = await blogService.create(blogObject, user.token)
+      setBlogs(blogs.concat(returnedNote))
+      setNewTitle('')
+      setNewAuthor('')
+      setNewUrl('')
       setErrorMessage(
         `a new blog ${blogObject.title} by ${blogObject.author} added`
       )
@@ -78,9 +78,26 @@ const App = () => {
     }
   }
 
+  const removeBlog = async (id) => {
+    try {
+      await blogService.deleteBlog(id)
+      setBlogs(blogs.filter(blog => blog.id !== id))
+      setUpdateBlogs(!updateBlogs)
+      setErrorMessage(['Blog deleted successfully', true])
+      setTimeout(() => {
+        setErrorMessage(null)
+      }, 5000)
+    } catch (error) {
+      setErrorMessage(['Delet was unsucsesful', false])
+      setTimeout(() => {
+        setErrorMessage(null)
+      }, 5000)
+      console.error('error deleting a blog', error)
+    }
+  }
+
   const handleLogin = async (event) => {
     event.preventDefault()
-    
     try {
       const user = await loginService.login({
         username, password,
@@ -88,7 +105,7 @@ const App = () => {
 
       window.localStorage.setItem(
         'loggedBlogappUser', JSON.stringify(user)
-      ) 
+      )
       blogService.setToken(user.token)
       setUser(user)
       setUsername('')
@@ -108,16 +125,16 @@ const App = () => {
 
   const loginForm = () => {
     return (
-    <div>
-      <Notification message={errorMessage} />
-      <LoginForm
-        username = {username}
-        setUsername = {setUsername}
-        password = {password}
-        setPassword = {setPassword}
-        handleLogin = {handleLogin}
-      />
-    </div>
+      <div>
+        <Notification message={errorMessage} />
+        <LoginForm
+          username = {username}
+          setUsername = {setUsername}
+          password = {password}
+          setPassword = {setPassword}
+          handleLogin = {handleLogin}
+        />
+      </div>
     )
   }
 
@@ -145,10 +162,10 @@ const App = () => {
           .filter(blog => blog.user && blog.user.username === user.username)
           .sort((a,b) => b.likes - a.likes)
           .map(blog =>
-          <Blog key={blog.id} blog={blog} updateLike={updateLike} />
-        )}
-        </div>
-      }     
+            <Blog key={blog.id} blog={blog} updateLike={updateLike} removeBlog={removeBlog} user = {user} />
+          )}
+      </div>
+      }
     </div>
   )
 }
