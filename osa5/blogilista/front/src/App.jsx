@@ -34,16 +34,8 @@ const App = () => {
     }
   }, [])
 
-  const addBlog = async (event) => {
-    event.preventDefault();
-    const blogObject = {
-      user: user,
-      title: newTitle,
-      author: newAuthor,
-      url: newUrl,
-    };
-  
-     // Lähetetään uusi muistiinpano palvelimelle
+  const addBlog = async (blogObject) => {
+
      try {
       const returnedNote = await blogService.create(blogObject, user.token);
       setBlogs(blogs.concat(returnedNote));
@@ -114,13 +106,7 @@ const App = () => {
       <button onClick={handleLogOut}>Logout</button>
       <Togglable buttonLabel = 'new blog'>
         <BlogForm
-          newTitle={newTitle}
-          setNewTitle={setNewTitle}
-          newAuthor={newAuthor}
-          setNewAuthor={setNewAuthor}
-          newUrl={newUrl}
-          setNewUrl={setNewUrl}
-          addBlog={addBlog}
+          createBlog={addBlog}
         />
       </Togglable>
       {user && blogs.filter(blog => blog.user && blog.user.username === user.username).map(blog =>
