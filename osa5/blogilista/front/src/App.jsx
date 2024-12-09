@@ -5,6 +5,7 @@ import loginService from './services/login'
 import LoginForm from './components/LoginForm'
 import BlogForm from './components/BlogForm'
 import Notification from './components/Notification'
+import Togglable from './components/Togglable'
 
 
 const App = () => {
@@ -16,6 +17,7 @@ const App = () => {
   const [newAuthor, setNewAuthor] = useState('');
   const [newUrl, setNewUrl] = useState('');
   const [errorMessage, setErrorMessage] = useState(null)
+  const [blogVisible, setBlogVisible] = useState(false)
 
   useEffect(() => {
     blogService.getAll().then(blogs =>
@@ -110,16 +112,17 @@ const App = () => {
       <Notification message={errorMessage} />
       <p>{user.name} logged in</p>
       <button onClick={handleLogOut}>Logout</button>
-
-      <BlogForm
-        newTitle={newTitle}
-        setNewTitle={setNewTitle}
-        newAuthor={newAuthor}
-        setNewAuthor={setNewAuthor}
-        newUrl={newUrl}
-        setNewUrl={setNewUrl}
-        addBlog={addBlog}
-      />
+      <Togglable buttonLabel = 'new blog'>
+        <BlogForm
+          newTitle={newTitle}
+          setNewTitle={setNewTitle}
+          newAuthor={newAuthor}
+          setNewAuthor={setNewAuthor}
+          newUrl={newUrl}
+          setNewUrl={setNewUrl}
+          addBlog={addBlog}
+        />
+      </Togglable>
       {user && blogs.filter(blog => blog.user && blog.user.username === user.username).map(blog =>
         <Blog key={blog.id} blog={blog} />
       )}
