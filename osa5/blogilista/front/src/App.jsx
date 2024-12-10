@@ -159,7 +159,6 @@ const App = () => {
         <button onClick={handleLogOut}>Logout</button>
         {blogForm()}
         {user && blogs
-          .filter(blog => blog.user && blog.user.username === user.username)
           .sort((a,b) => b.likes - a.likes)
           .map(blog =>
             <Blog key={blog.id} blog={blog} updateLike={updateLike} removeBlog={removeBlog} user = {user} />
