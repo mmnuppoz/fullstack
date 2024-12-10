@@ -7,7 +7,7 @@ test('renders content', () => {
   const blog = {
     title: 'Component testing is done with react-testing-library',
     author: "Testi Kirjoittaja",
-    url: "http:://testejä.com",
+    url: "http://testejä.com",
     likes: 1
   }
 
@@ -18,7 +18,7 @@ test('renders content', () => {
   )
 
   expect(component.container).not.toHaveTextContent(
-    'http:://testejä.com'
+    'http://testejä.com'
   )
 
   expect(component.container).not.toHaveTextContent(
@@ -32,7 +32,7 @@ test('url, likes and user is shown when clicking the view button'), async () => 
   const blog = {
     title: 'Component testing is done with react-testing-library',
     author: "Testi Kirjoittaja",
-    url: "http:://testejä.com",
+    url: "http://testejä.com",
     likes: 1,
     user: {
       name: "Testi Käyttäjä",
@@ -55,7 +55,7 @@ test('url, likes and user is shown when clicking the view button'), async () => 
   await user.click(button)
 
   expect(component.container).toHaveTextContent(
-    'http:://testejä.com'
+    'http://testejä.com'
   )
 
   expect(component.container).toHaveTextContent(
@@ -77,7 +77,7 @@ test('if like button is pressed two times event handler is called twice'), async
     const blog = {
         title: 'Component testing is done with react-testing-library',
         author: "Testi Kirjoittaja",
-        url: "http:://testejä.com",
+        url: "http://testejä.com",
         likes: 1,
         user: {
           name: "Testi Käyttäjä",
